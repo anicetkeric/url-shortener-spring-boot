@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -41,9 +42,9 @@ class UrlShortenerServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(properties.baseUrl()).thenReturn(BASE_URL);
-        when(properties.cacheTtlHours()).thenReturn(24L);
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        lenient().when(properties.baseUrl()).thenReturn(BASE_URL);
+        lenient().when(properties.cacheTtlHours()).thenReturn(24L);
+        lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     }
 
     @Test
@@ -65,7 +66,7 @@ class UrlShortenerServiceTest {
         assertThat(response.originalUrl()).isEqualTo(TEST_URL);
         assertThat(response.createdAt()).isNotNull();
 
-        verify(valueOperations).set(eq("url:1"), eq(TEST_URL), any());
+        verify(valueOperations).set(eq("url:1"), eq(TEST_URL), any(Duration.class));
     }
 
     @Test
@@ -90,7 +91,7 @@ class UrlShortenerServiceTest {
 
         assertThat(result).isEqualTo(TEST_URL);
         verify(repository).findByShortCode("abc");
-        verify(valueOperations).set(eq("url:abc"), eq(TEST_URL), any());
+        verify(valueOperations).set(eq("url:abc"), eq(TEST_URL), any(Duration.class));
         verify(clickTrackingService).recordClick("abc");
     }
 
